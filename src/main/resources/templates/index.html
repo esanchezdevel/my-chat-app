@@ -1,0 +1,30 @@
+<html>
+<head>
+	<title>My Chat APP</title>
+	
+	<script type="text/javascript">
+		function sendmessage() {
+			console.log("sending message...");
+			
+			const input_text = document.querySelector("#input-text").value;
+			
+			console.log("text to send: " + input_text);
+			
+			var xhr = new XMLHttpRequest();
+			
+			xhr.open("POST", "http://localhost:8080/message/send", true);
+			xhr.setRequestHeader('Content-Type', 'application/json');
+			xhr.send(JSON.stringify({
+			    value: input_text
+			}));
+		}
+	</script>
+</head>
+<body>
+	<h1>My Chat APP</h1>
+	<textarea rows="25" cols="100"></textarea>
+	<br><br>
+	<input type="text" id="input-text">
+	<button id="button-send" onclick="sendmessage()">send</button>
+</body>
+</html>
