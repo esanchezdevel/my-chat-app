@@ -15,6 +15,7 @@ public class ClientThread extends Thread {
 	
 	@Override
 	public void run() {
+		System.out.println("new thread created for a client");
 		
 		try {
 			DataInputStream input = new DataInputStream(socket.getInputStream());
@@ -24,12 +25,10 @@ public class ClientThread extends Thread {
 				System.out.println("connected");
 				output.writeUTF("connected");
 				
-				String messageReceived = input.readUTF();
+				String messageReceived = input.readUTF(); //message received from the client
 				
 				System.out.println(messageReceived);
 				MessagesQueue.saveMessage(messageReceived);
-				
-				output.writeUTF("message received");
 			}
 		} catch (Exception e) {
 			System.out.println("Error in thread: " + e.getMessage());

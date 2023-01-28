@@ -26,31 +26,22 @@ public class SocketClient {
 		String text = null;
 		
 		System.out.println("Welcome to the socket client. To close the connection send \"exit\"");
-		
+		System.out.println("Write all the messages that you want:");
+		System.out.println("==================================================================");
 		try {
 			socket = new Socket(HOST, PORT);
 
 			Scanner scanner = new Scanner(System.in);;
 			while (!"exit".equals(text)) {
-				System.out.println("requesting message to user");
 				text = scanner.nextLine();
 
-				System.out.println("text to send: " + text);
 				DataInputStream input = new DataInputStream(socket.getInputStream());
-				System.out.println("TEST-input created from socket");
-				String connectedMessage = input.readUTF();
+				String connectedMessage = input.readUTF(); //receive the message from server that confirm that client is connected
 				
-				System.out.println("trying to send message: " + text + " - connectedMessage: " + connectedMessage);
 				if ("connected".equals(connectedMessage)) {
 					DataOutputStream message = new DataOutputStream(socket.getOutputStream());
 					
-					message.writeUTF(text);
-
-					if ("message received".equals(input.readUTF())) {
-						System.out.println("message sent");		
-					} else {
-						System.out.println("message not sent");
-					}
+					message.writeUTF(text); //send the text to the server
 				} else {
 					System.out.println("connection not established");
 				}

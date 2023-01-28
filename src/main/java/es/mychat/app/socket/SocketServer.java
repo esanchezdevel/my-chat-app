@@ -17,12 +17,11 @@ public class SocketServer {
 			
 			socket = new Socket();
 			
-			System.out.println("connection with client confirmed");
-			
 			while(true) {
-				System.out.println("waiting for a connection...");
+				System.out.println("waiting for a client to connect...");
 				socket = serverSocket.accept();
 				
+				System.out.println("client connected");
 				new ClientThread(socket).start();
 			}
 		} catch (Exception e) {
