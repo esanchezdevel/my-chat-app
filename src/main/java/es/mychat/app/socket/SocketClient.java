@@ -2,6 +2,7 @@ package es.mychat.app.socket;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -21,43 +22,54 @@ public class SocketClient {
 	
 	public static void main(String[] args) {
 		
-		Socket socket = null;
-		
 		String text = null;
 		
 		System.out.println("Welcome to the socket client. To close the connection send \"exit\"");
 		System.out.println("Write all the messages that you want:");
 		System.out.println("==================================================================");
 		try {
-			socket = new Socket(HOST, PORT);
+			final Socket socket = new Socket(HOST, PORT);
 
-			Scanner scanner = new Scanner(System.in);;
-			while (!"exit".equals(text)) {
-				text = scanner.nextLine();
-
-				DataInputStream input = new DataInputStream(socket.getInputStream());
-				String connectedMessage = input.readUTF(); //receive the message from server that confirm that client is connected
+			new Thread() {
 				
-				if ("connected".equals(connectedMessage)) {
-					DataOutputStream message = new DataOutputStream(socket.getOutputStream());
-					
-					message.writeUTF(text); //send the text to the server
-				} else {
-					System.out.println("connection not established");
-				}
+				@Override
+				public void run() {
+					while (true) {
+						DataInputStream input = null;
+						try {
+							input = new DataInputStream(socket.getInputStream());
+						
+							String connectedMessage = null;
+							connectedMessage = input.readUTF();
+							System.out.println(connectedMessage);
+						} catch (IOException e) {
+							System.out.println("Error reading messages from server: " + e.getMessage());
+							e.printStackTrace();
+						}
+					}
+				};
+			}.start();
+			
+			Scanner scanner = new Scanner(System.in);
+			
+			System.out.print("nick: ");
+			String nick = scanner.nextLine();
+			
+			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+			output.writeUTF(nick);
+			
+			System.out.println("Bienvenido " + nick + ". Ahora puedes escribir en el chat.");
+			while (!"exit".equals(text)) {
+				System.out.print(">" + nick + ": ");
+				text = scanner.nextLine();
+				
+				output.writeUTF(text); //send the text to the server
 			}
 			scanner.close();
+			socket.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				socket.close();
-				System.out.println("connection with server closed");
-			} catch (Exception e) {
-				System.out.println("Error closing connection with server: " + e.getMessage());
-				e.printStackTrace();
-			}
 		}
 	}
 }

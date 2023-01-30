@@ -1,28 +1,39 @@
 package es.mychat.app.socket;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+
+import es.mychat.app.model.entity.ClientEntity;
 
 public class SocketServer {
 
 	private static final int PORT = 5000;
-		
+	
+	public static final List<ClientEntity> CLIENTS_CONNECTED = new ArrayList<>();
+	
 	public static void init() {
 
-		Socket socket = null;
 		ServerSocket serverSocket = null;
+		Socket clientSocket = null;
 		
 		try {
 			serverSocket = new ServerSocket(PORT);
 			
-			socket = new Socket();
-			
 			while(true) {
 				System.out.println("waiting for a client to connect...");
-				socket = serverSocket.accept();
+				clientSocket = serverSocket.accept();
 				
-				System.out.println("client connected");
-				new ClientThread(socket).start();
+				DataInputStream input = new DataInputStream(clientSocket.getInputStream());
+				String nick = input.readUTF();
+				
+				CLIENTS_CONNECTED.add(new ClientEntity(nick, clientSocket, new DataOutputStream(clientSocket.getOutputStream())));
+				
+				System.out.println("client \"" + nick + "\" connected");
+				new ClientThread(clientSocket).start();
 			}
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
