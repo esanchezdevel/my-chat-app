@@ -31,10 +31,19 @@ public class SocketClient {
 			final Socket socket = new Socket(HOST, PORT);
 
 			//Thread to read in async mode the messages sent by the server
-			new Thread(new Runnable() {
+			Thread readFromServerThread = new Thread(new Runnable() {
+				
+				private boolean isConnected = true;
+				
 				@Override
 				public void run() {
-					while (true) {
+					while (isConnected) {
+						
+						if (Thread.interrupted()) {
+							System.out.println("Hasta Pronto!!!");
+							isConnected = false;
+						}
+						
 						try {
 							DataInputStream input = new DataInputStream(socket.getInputStream());
 						
@@ -46,7 +55,12 @@ public class SocketClient {
 						}
 					}
 				}
-			}).start();
+				
+				
+			});
+			
+			readFromServerThread.setName("readFromServerThread");
+			readFromServerThread.start();
 			
 			Scanner scanner = new Scanner(System.in);
 			
@@ -62,6 +76,7 @@ public class SocketClient {
 				
 				output.writeUTF(nick + "|" + text); //send the text to the server
 			}
+			readFromServerThread.interrupt();
 			scanner.close();
 			socket.close();
 			
