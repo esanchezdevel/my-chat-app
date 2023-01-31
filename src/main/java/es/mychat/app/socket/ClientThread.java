@@ -1,11 +1,9 @@
 package es.mychat.app.socket;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.Socket;
 
 import es.mychat.app.model.entity.ClientEntity;
-import es.mychat.app.queue.MessagesQueue;
 
 public class ClientThread extends Thread {
 	private Socket socket;
@@ -20,7 +18,6 @@ public class ClientThread extends Thread {
 		
 		try {
 			DataInputStream input = new DataInputStream(socket.getInputStream());
-			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
 			while (true) {
 				System.out.println("connected");
@@ -28,15 +25,22 @@ public class ClientThread extends Thread {
 				String messageReceived = input.readUTF(); //message received from the client
 				
 				System.out.println(messageReceived);
-				MessagesQueue.saveMessage(messageReceived);
 				
 				for (ClientEntity client : SocketServer.CLIENTS_CONNECTED) {
-					client.getOutput().writeUTF(">> " + messageReceived);
+					client.getOutput().writeUTF(getNickFromMessage(messageReceived) + ">> " + getContentFromMessage(messageReceived));
 				}
 			}
 		} catch (Exception e) {
 			System.out.println("Error in thread: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+	
+	private String getNickFromMessage(String message) {
+		return message.split("\\|")[0];
+	}
+	
+	private String getContentFromMessage(String message) {
+		return message.split("\\|")[1];
 	}
 }

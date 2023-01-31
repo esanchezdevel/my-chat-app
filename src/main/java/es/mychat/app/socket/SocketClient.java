@@ -30,25 +30,23 @@ public class SocketClient {
 		try {
 			final Socket socket = new Socket(HOST, PORT);
 
-			new Thread() {
-				
+			//Thread to read in async mode the messages sent by the server
+			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					while (true) {
-						DataInputStream input = null;
 						try {
-							input = new DataInputStream(socket.getInputStream());
+							DataInputStream input = new DataInputStream(socket.getInputStream());
 						
-							String connectedMessage = null;
-							connectedMessage = input.readUTF();
-							System.out.println(connectedMessage);
+							String message = input.readUTF();
+							System.out.println(message);
 						} catch (IOException e) {
 							System.out.println("Error reading messages from server: " + e.getMessage());
 							e.printStackTrace();
 						}
 					}
-				};
-			}.start();
+				}
+			}).start();
 			
 			Scanner scanner = new Scanner(System.in);
 			
@@ -60,10 +58,9 @@ public class SocketClient {
 			
 			System.out.println("Bienvenido " + nick + ". Ahora puedes escribir en el chat.");
 			while (!"exit".equals(text)) {
-				System.out.print(">" + nick + ": ");
 				text = scanner.nextLine();
 				
-				output.writeUTF(text); //send the text to the server
+				output.writeUTF(nick + "|" + text); //send the text to the server
 			}
 			scanner.close();
 			socket.close();
