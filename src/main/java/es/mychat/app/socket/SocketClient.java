@@ -55,8 +55,6 @@ public class SocketClient {
 						}
 					}
 				}
-				
-				
 			});
 			
 			readFromServerThread.setName("readFromServerThread");
