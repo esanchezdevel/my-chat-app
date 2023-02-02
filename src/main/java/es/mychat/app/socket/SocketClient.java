@@ -40,8 +40,9 @@ public class SocketClient {
 					while (isConnected) {
 						
 						if (Thread.interrupted()) {
-							System.out.println("Hasta Pronto!!!");
+							System.out.println("Good bye!!!");
 							isConnected = false;
+							return;
 						}
 						
 						try {
@@ -50,8 +51,7 @@ public class SocketClient {
 							String message = input.readUTF();
 							System.out.println(message);
 						} catch (IOException e) {
-							System.out.println("Error reading messages from server: " + e.getMessage());
-							e.printStackTrace();
+							System.out.println("Connection with server closed");
 						}
 					}
 				}
@@ -70,7 +70,7 @@ public class SocketClient {
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 			output.writeUTF(nick);
 			
-			System.out.println("Bienvenido " + nick + ". Ahora puedes escribir en el chat.");
+			System.out.println("Welcome " + nick + ". Now you can write in the chat.");
 			while (!"exit".equals(text)) {
 				text = scanner.nextLine();
 				
