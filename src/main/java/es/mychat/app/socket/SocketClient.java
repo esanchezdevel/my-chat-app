@@ -1,8 +1,9 @@
 package es.mychat.app.socket;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -46,9 +47,9 @@ public class SocketClient {
 						}
 						
 						try {
-							DataInputStream input = new DataInputStream(socket.getInputStream());
-						
-							String message = input.readUTF();
+							BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+							
+							String message = input.readLine();
 							System.out.println(message);
 						} catch (IOException e) {
 							System.out.println("Connection with server closed");
@@ -65,14 +66,16 @@ public class SocketClient {
 			System.out.print("nick: ");
 			String nick = scanner.nextLine();
 			
-			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-			output.writeUTF(nick);
+			PrintWriter output = new PrintWriter(socket.getOutputStream());
+            output.write(nick + "\n");
+            output.flush();
 			
 			System.out.println("Welcome " + nick + ". Now you can write in the chat.");
 			while (!"exit".equals(text)) {
 				text = scanner.nextLine();
 				
-				output.writeUTF(nick + "|" + text); //send the text to the server
+				output.write(nick + "|" + text + "\n");
+				output.flush();
 			}
 			readFromServerThread.interrupt();
 			scanner.close();

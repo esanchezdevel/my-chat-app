@@ -1,6 +1,7 @@
 package es.mychat.app.socket;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,8 +28,8 @@ public class SocketServer {
 				System.out.println("waiting for a client to connect...");
 				clientSocket = serverSocket.accept();
 				
-				DataInputStream input = new DataInputStream(clientSocket.getInputStream());
-				String nick = input.readUTF();
+				BufferedReader input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+				String nick = input.readLine();
 				
 				CLIENTS_CONNECTED.add(new ClientEntity(nick, clientSocket, new DataOutputStream(clientSocket.getOutputStream())));
 				

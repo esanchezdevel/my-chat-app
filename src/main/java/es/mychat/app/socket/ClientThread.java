@@ -1,7 +1,9 @@
 package es.mychat.app.socket;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 import es.mychat.app.model.entity.ClientEntity;
@@ -18,18 +20,20 @@ public class ClientThread extends Thread {
 		System.out.println("new thread created for a client");
 		
 		try {
-			DataInputStream input = new DataInputStream(socket.getInputStream());
+			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 			while (true) {
 				System.out.println("connected");
 				
-				String messageReceived = input.readUTF(); //message received from the client
+				String messageReceived = input.readLine();
 				
 				if ("exit".equals(getContentFromMessage(messageReceived))) {
 					SocketServer.CLIENTS_CONNECTED.removeIf(client -> client.getId().equals(getNickFromMessage(messageReceived)));
 					SocketServer.CLIENTS_CONNECTED.forEach(client -> {
 						try {
-							client.getOutput().writeUTF("<------" + getNickFromMessage(messageReceived) + " left the session------>");
+							PrintWriter output = new PrintWriter(client.getSocket().getOutputStream());
+				            output.write("<------" + getNickFromMessage(messageReceived) + " left the session------>\n");
+				            output.flush();
 						} catch (IOException e) {
 							System.out.println("Error sending bye message to all clients");
 						}
@@ -38,7 +42,9 @@ public class ClientThread extends Thread {
 					System.out.println(messageReceived);
 					
 					for (ClientEntity client : SocketServer.CLIENTS_CONNECTED) {
-						client.getOutput().writeUTF(getNickFromMessage(messageReceived) + ">> " + getContentFromMessage(messageReceived));
+						PrintWriter output = new PrintWriter(client.getSocket().getOutputStream());
+			            output.write(getNickFromMessage(messageReceived) + ">> " + getContentFromMessage(messageReceived) + "\n");
+			            output.flush();
 					}
 				}
 			}
